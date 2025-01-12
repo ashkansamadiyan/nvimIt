@@ -4,7 +4,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -33,8 +33,12 @@ vim.schedule(function()
 end)
 
 -- Enable break indent
-vim.opt.breakindent = true
-
+-- vim.opt.breakindent = true
+-- vim.opt.tabstop = 2
+-- vim.opt.softtabstop = 4
+-- vim.opt.shiftwidth = 4
+-- vim.opt.expandtab = true
+-- vim.opt.termguicolors = true
 -- Save undo history
 vim.opt.undofile = true
 
@@ -58,7 +62,7 @@ vim.opt.splitbelow = true
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
-vim.opt.list = true
+vim.opt.list = false
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
@@ -79,8 +83,49 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>pv', ':e .<CR>', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<leader>pp', vim.cmd.Oil)
+vim.keymap.set('n', '<Tab>', 'o<Esc>', { noremap = true, silent = true })
+vim.keymap.set('n', '1', '^', { noremap = true, silent = true })
+vim.keymap.set('n', '2', '$', { noremap = true, silent = true })
 
+vim.keymap.set('v', '1', '^', { noremap = true, silent = true })
+vim.keymap.set('v', '2', '$', { noremap = true, silent = true })
+-- move commands in visual mode
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
+vim.keymap.set({ 'n', 'v' }, '<leader>y', [["+y]])
+----
+---
+---
+---
+---
+local function open_terminal_in_buffer_dir()
+  local current_buffer_dir = vim.fn.expand '%:p:h'
+  vim.cmd 'split'
+  vim.cmd 'resize 25'
+  vim.cmd('terminal cd "' .. current_buffer_dir .. '" && $SHELL')
+
+  -- Disable line numbers in terminal buffer
+  vim.cmd 'setlocal nonumber norelativenumber'
+
+  vim.cmd 'startinsert'
+end
+
+vim.keymap.set('n', '<leader>t', open_terminal_in_buffer_dir, {
+  noremap = true,
+  silent = true,
+  desc = 'Open terminal in current buffer directory',
+})
+
+--
 -- Diagnostic keymaps
+--
+--
+--
+--
+--
+--
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -188,7 +233,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -234,7 +279,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -274,7 +319,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       --
@@ -304,6 +349,7 @@ require('lazy').setup({
           --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
           file_ignore_patterns = {
             'node_modules',
+            'venv',
           },
           --   },
         },
@@ -330,16 +376,100 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+
+
+
+      vim.keymap.set('n', '<leader><leader>', function()
+        builtin.buffers(require('telescope.themes').get_dropdown {
+          sort_mru = true,
+          ignore_current_buffer = true,
+          previewer = false,
+          attach_mappings = function(prompt_bufnr, map)
+            -- Navigate up/down with Tab/Shift-Tab
+            map('i', '<Tab>', 'move_selection_next')
+            map('i', '<S-Tab>', 'move_selection_previous')
+
+            -- Keep default behavior for other keys
+            return true
+          end
+        })
+      end, { desc = '[ ] Find existing buffers' })
+
+
+
+
+
+
+      --
+      --
+      --
+      --
+      --
+      --
+
+
+      local function get_sorted_buffers()
+        local buffers = {}
+        local current = vim.fn.bufnr()
+
+        for _, bufnr in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+          if bufnr.bufnr ~= current then
+            table.insert(buffers, bufnr.bufnr)
+          end
+        end
+
+        -- Sort by most recently used
+        table.sort(buffers, function(a, b)
+          return vim.fn.getbufinfo(a)[1].lastused > vim.fn.getbufinfo(b)[1].lastused
+        end)
+
+        return buffers
+      end
+
+      -- Jump to nth buffer in MRU list
+      local function jump_to_buffer(n)
+        local buffers = get_sorted_buffers()
+        if #buffers >= n then
+          vim.api.nvim_set_current_buf(buffers[n])
+        end
+      end
+
+      vim.keymap.set('n', '<leader>1', function() jump_to_buffer(1) end, { desc = 'Jump to previous buffer' })
+      vim.keymap.set('n', '<leader>2', function() jump_to_buffer(2) end, { desc = 'Jump to second most recent buffer' })
+
+
+      ---
+      ---
+      ---
+      ---
+      ---
+      ---
+      ---
+      ---
+
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
@@ -358,13 +488,6 @@ require('lazy').setup({
   },
 
   {
-    'olimorris/onedarkpro.nvim',
-    priority = 1000, -- Ensures it loads first
-    config = function()
-      vim.cmd [[colorscheme onedark]]
-    end,
-  },
-  {
     'ThePrimeagen/harpoon',
     branch = 'harpoon2', -- Since you're using the new Harpoon 2 syntax
     dependencies = { 'nvim-lua/plenary.nvim' },
@@ -382,7 +505,7 @@ require('lazy').setup({
         harpoon:list():remove()
       end)
 
-      vim.keymap.set('n', '<leader>ha', function()
+      vim.keymap.set('n', '<leader>fh', function()
         harpoon:list():clear()
       end)
 
@@ -418,7 +541,7 @@ require('lazy').setup({
       },
     },
   },
-  { 'Bilal2453/luvit-meta', lazy = true },
+  { 'Bilal2453/luvit-meta',     lazy = true },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -432,7 +555,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -565,7 +688,74 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        -- pyright = {
+        --
+        --
+        -- pyright = {
+        --   cmd = { 'pyright-langserver', '--stdio' },
+        --   filetypes = { 'python' },
+        --   root_dir = function(fname)
+        --     return require('lspconfig.util').root_pattern(
+        --       'pyproject.toml',
+        --       'setup.py',
+        --       'setup.cfg',
+        --       'requirements.txt',
+        --       'Pipfile',
+        --       'pyrightconfig.json',
+        --       '.git'
+        --     )(fname)
+        --   end,
+        --   single_file_support = true,
+        --   settings = {
+        --     python = {
+        --       analysis = {
+        --         autoSearchPaths = true,
+        --         useLibraryCodeForTypes = false,
+        --         diagnosticMode = 'openFilesOnly',
+        --       },
+        --     },
+        --   },
+        --   -- Custom commands
+        --   on_attach = function(client, bufnr)
+        --     -- Create command for organizing imports
+        --     vim.api.nvim_buf_create_user_command(bufnr, 'PyrightOrganizeImports', function()
+        --       local params = {
+        --         command = 'pyright.organizeimports',
+        --         arguments = { vim.uri_from_bufnr(0) },
+        --       }
+        --       client.request('workspace/executeCommand', params, nil, 0)
+        --     end, {
+        --       desc = 'Organize Imports'
+        --     })
+        --
+        --     -- Create command for setting Python path
+        --     vim.api.nvim_buf_create_user_command(bufnr, 'PyrightSetPythonPath', function(args)
+        --       local path = args.args
+        --       if client.settings then
+        --         client.settings.python = vim.tbl_deep_extend('force', client.settings.python, { pythonPath = path })
+        --       else
+        --         client.config.settings = vim.tbl_deep_extend('force', client.config.settings,
+        --           { python = { pythonPath = path } })
+        --       end
+        --       client.notify('workspace/didChangeConfiguration', { settings = nil })
+        --     end, {
+        --       desc = 'Reconfigure pyright with the provided python path',
+        --       nargs = 1,
+        --       complete = 'file',
+        --     })
+        --   end,
+        -- },
+        --
+        --   settings = {
+        --
+        --     Python = {
+        --       analysis = {
+        --         typeCheckingMode = "off"
+        --       }
+        --     }
+        --   }
+        -- },
+
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -585,11 +775,13 @@ require('lazy').setup({
               completion = {
                 callSnippet = 'Replace',
               },
+
+
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
-        },
+        }
       }
 
       -- Ensure the servers and tools above are installed
@@ -626,48 +818,48 @@ require('lazy').setup({
     end,
   },
 
-  { -- Autoformat
-    'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    keys = {
-      {
-        '<leader>f',
-        function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
-        end,
-        mode = '',
-        desc = '[F]ormat buffer',
-      },
-    },
-    opts = {
-      notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        local lsp_format_opt
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          lsp_format_opt = 'never'
-        else
-          lsp_format_opt = 'fallback'
-        end
-        return {
-          timeout_ms = 500,
-          lsp_format = lsp_format_opt,
-        }
-      end,
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
-      },
-    },
-  },
+  -- { -- Autoformat
+  --   'stevearc/conform.nvim',
+  --   event = { 'BufWritePre' },
+  --   cmd = { 'ConformInfo' },
+  --   keys = {
+  --     {
+  --       '<leader>f',
+  --       function()
+  --         require('conform').format { async = true, lsp_format = 'fallback' }
+  --       end,
+  --       mode = '',
+  --       desc = '[F]ormat buffer',
+  --     },
+  --   },
+  --   opts = {
+  --     notify_on_error = false,
+  --     format_on_save = function(bufnr)
+  --       -- Disable "format_on_save lsp_fallback" for languages that don't
+  --       -- have a well standardized coding style. You can add additional
+  --       -- languages here or re-enable it for the disabled ones.
+  --       local disable_filetypes = { c = true, cpp = true }
+  --       local lsp_format_opt
+  --       if disable_filetypes[vim.bo[bufnr].filetype] then
+  --         lsp_format_opt = 'never'
+  --       else
+  --         lsp_format_opt = 'fallback'
+  --       end
+  --       return {
+  --         timeout_ms = 500,
+  --         lsp_format = lsp_format_opt,
+  --       }
+  --     end,
+  --     formatters_by_ft = {
+  --       lua = { 'stylua' },
+  --       -- Conform can also run multiple formatters sequentially
+  --       -- python = { "isort", "black" },
+  --       --
+  --       -- You can use 'stop_after_first' to run the first available formatter from the list
+  --       -- javascript = { "prettierd", "prettier", stop_after_first = true },
+  --     },
+  --   },
+  -- },
 
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -893,12 +1085,12 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  --          require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  --           require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  --  require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  --require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
