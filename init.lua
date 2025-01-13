@@ -95,6 +95,16 @@ vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set({ 'n', 'v' }, '<leader>y', [["+y]])
+
+vim.keymap.set('i', '<M-h>', '<Left>', { noremap = true })
+vim.keymap.set('i', '<M-j>', '<Down>', { noremap = true })
+vim.keymap.set('i', '<M-k>', '<Up>', { noremap = true })
+vim.keymap.set('i', '<M-l>', '<Right>', { noremap = true })
+
+
+
+vim.keymap.set('i', '<M-CR>', '<CR><CR><CR><UP><UP>', {noremap = true, silent = true})
+
 ----
 ---
 ---
@@ -153,6 +163,12 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 --replace them ffs that messes up the damn pp in v mode!
 vim.keymap.set('i', '<C-c>', '<C-[>', { noremap = true })
+-- vim.keymap.set('i', '<C-h>', '<Left>', { noremap = true })
+-- vim.keymap.set('i', '<C-j>', '<Down>', { noremap = true })
+-- vim.keymap.set('i', '<C-k>', '<Up>', { noremap = true })
+-- vim.keymap.set('i', '<C-l>', '<Right>', { noremap = true })
+
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -688,83 +704,15 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {
-        --
-        --
-        -- pyright = {
-        --   cmd = { 'pyright-langserver', '--stdio' },
-        --   filetypes = { 'python' },
-        --   root_dir = function(fname)
-        --     return require('lspconfig.util').root_pattern(
-        --       'pyproject.toml',
-        --       'setup.py',
-        --       'setup.cfg',
-        --       'requirements.txt',
-        --       'Pipfile',
-        --       'pyrightconfig.json',
-        --       '.git'
-        --     )(fname)
-        --   end,
-        --   single_file_support = true,
-        --   settings = {
-        --     python = {
-        --       analysis = {
-        --         autoSearchPaths = true,
-        --         useLibraryCodeForTypes = false,
-        --         diagnosticMode = 'openFilesOnly',
-        --       },
-        --     },
-        --   },
-        --   -- Custom commands
-        --   on_attach = function(client, bufnr)
-        --     -- Create command for organizing imports
-        --     vim.api.nvim_buf_create_user_command(bufnr, 'PyrightOrganizeImports', function()
-        --       local params = {
-        --         command = 'pyright.organizeimports',
-        --         arguments = { vim.uri_from_bufnr(0) },
-        --       }
-        --       client.request('workspace/executeCommand', params, nil, 0)
-        --     end, {
-        --       desc = 'Organize Imports'
-        --     })
-        --
-        --     -- Create command for setting Python path
-        --     vim.api.nvim_buf_create_user_command(bufnr, 'PyrightSetPythonPath', function(args)
-        --       local path = args.args
-        --       if client.settings then
-        --         client.settings.python = vim.tbl_deep_extend('force', client.settings.python, { pythonPath = path })
-        --       else
-        --         client.config.settings = vim.tbl_deep_extend('force', client.config.settings,
-        --           { python = { pythonPath = path } })
-        --       end
-        --       client.notify('workspace/didChangeConfiguration', { settings = nil })
-        --     end, {
-        --       desc = 'Reconfigure pyright with the provided python path',
-        --       nargs = 1,
-        --       complete = 'file',
-        --     })
-        --   end,
-        -- },
-        --
-        --   settings = {
-        --
-        --     Python = {
-        --       analysis = {
-        --         typeCheckingMode = "off"
-        --       }
-        --     }
-        --   }
-        -- },
-
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        pyright = {
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = "off",
+              },
+            },
+          },
+        },
 
         lua_ls = {
           -- cmd = { ... },
@@ -1056,6 +1004,9 @@ require('lazy').setup({
         'typescript',
         'javascript',
         'python',
+        'html',
+        'xml',
+        'json'
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
@@ -1074,6 +1025,7 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
