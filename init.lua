@@ -1,4 +1,4 @@
--- See `:help mapleader`
+-- See `:help mapleader`im
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
@@ -28,9 +28,9 @@ vim.opt.showmode = false
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+-- vim.schedule(function()
+--   vim.opt.clipboard = 'unnamedplus'
+-- end)
 
 -- Enable break indent
 -- vim.opt.breakindent = true
@@ -38,7 +38,7 @@ end)
 -- vim.opt.softtabstop = 4
 -- vim.opt.shiftwidth = 4
 -- vim.opt.expandtab = true
--- vim.opt.termguicolors = true
+vim.opt.termguicolors = true
 -- Save undo history
 vim.opt.undofile = true
 
@@ -53,7 +53,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.updatetime = 250
 
 -- Decrease mapped sequence wait time
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 1000
 
 -- Configure how new splits should be opened
 vim.opt.splitright = true
@@ -103,30 +103,30 @@ vim.keymap.set('i', '<M-l>', '<Right>', { noremap = true })
 
 
 
-vim.keymap.set('i', '<M-CR>', '<CR><CR><CR><UP><UP>', {noremap = true, silent = true})
+vim.keymap.set('i', '<M-CR>', '<CR><CR><CR><UP><UP>', { noremap = true, silent = true })
 
 ----
 ---
 ---
 ---
 ---
-local function open_terminal_in_buffer_dir()
-  local current_buffer_dir = vim.fn.expand '%:p:h'
-  vim.cmd 'split'
-  vim.cmd 'resize 25'
-  vim.cmd('terminal cd "' .. current_buffer_dir .. '" && $SHELL')
-
-  -- Disable line numbers in terminal buffer
-  vim.cmd 'setlocal nonumber norelativenumber'
-
-  vim.cmd 'startinsert'
-end
-
-vim.keymap.set('n', '<leader>t', open_terminal_in_buffer_dir, {
-  noremap = true,
-  silent = true,
-  desc = 'Open terminal in current buffer directory',
-})
+-- local function open_terminal_in_buffer_dir()
+--   local current_buffer_dir = vim.fn.expand '%:p:h'
+--   vim.cmd 'split'
+--   vim.cmd 'resize 25'
+--   vim.cmd('terminal cd "' .. current_buffer_dir .. '" && $SHELL')
+--
+--   -- Disable line numbers in terminal buffer
+--   vim.cmd 'setlocal nonumber norelativenumber'
+--
+--   vim.cmd 'startinsert'
+-- end
+--
+-- vim.keymap.set('n', '<leader>t', open_terminal_in_buffer_dir, {
+--   noremap = true,
+--   silent = true,
+--   desc = 'Open terminal in current buffer directory',
+-- })
 
 --
 -- Diagnostic keymaps
@@ -144,7 +144,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -163,11 +162,6 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 --replace them ffs that messes up the damn pp in v mode!
 vim.keymap.set('i', '<C-c>', '<C-[>', { noremap = true })
--- vim.keymap.set('i', '<C-h>', '<Left>', { noremap = true })
--- vim.keymap.set('i', '<C-j>', '<Down>', { noremap = true })
--- vim.keymap.set('i', '<C-k>', '<Up>', { noremap = true })
--- vim.keymap.set('i', '<C-l>', '<Right>', { noremap = true })
-
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -401,8 +395,9 @@ require('lazy').setup({
           sort_mru = true,
           ignore_current_buffer = true,
           previewer = false,
+          initial_mode = "normal",
           attach_mappings = function(prompt_bufnr, map)
-            -- Navigate up/down with Tab/Shift-Tab
+
             map('i', '<Tab>', 'move_selection_next')
             map('i', '<S-Tab>', 'move_selection_previous')
 

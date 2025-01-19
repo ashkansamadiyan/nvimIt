@@ -14,7 +14,7 @@ except:
     ]], {
         i(1, "#what"),
         i(2, "#Ex"),
-       
+
     })),
 
     -- FastAPI route
@@ -42,5 +42,6 @@ class {}(models.Model):
         i(3, "CharField"),
         i(4, "max_length=100"),
     })),
-}) 
-return{}
+})
+return {}
+

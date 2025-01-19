@@ -20,6 +20,10 @@ return {
       view_options = {
         show_hidden = true,
       },
+      buf_options = {
+        buflisted = false,
+        bufhidden = "hide",
+      },
     },
   },
   {
