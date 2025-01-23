@@ -1,8 +1,6 @@
 return {
   -- Add dracula
   { "Mofiqul/dracula.nvim" },
-  -- Configure LazyVim to load dracula
-  
   {
     "Mofiqul/dracula.nvim",
     config = function()
@@ -10,20 +8,19 @@ return {
       dracula.setup({
         colors = {
           -- Base colors
-          bg = "#1E1F2B",             -- Slightly darker than default
-          fg = "#F8F8F2",             -- Classic Dracula foreground
-          selection = "#454B7D",       -- Slightly more saturated selection
-          comment = "#6272A4",         -- Original comment color
-          
+          bg = "#0A0B14",        -- Slightly darker than default
+          fg = "#F8F8F2",        -- Classic Dracula foreground
+          selection = "#454B7D", -- Slightly more saturated selection
+          comment = "#6272A4",   -- Original comment color
           -- Balanced primary colors
-          red = "#FF4455",            -- Softened red
-          orange = "#FFB86C",         -- Classic orange
-          yellow = "#F1FA8C",         -- Classic yellow
-          green = "#50FA7B",          -- Classic green
-          purple = "#BD93F9",         -- Classic purple
-          cyan = "#8BE9FD",           -- Classic cyan
-          pink = "#FF79C6",           -- Classic pink
-          
+          red = "#FF4455",    -- Softened red
+          orange = "#FFB86C", -- Classic orange
+          yellow = "#F1FA8C", -- Classic yellow
+          green = "#50FA7B",  -- Classic green
+          purple = "#BD93F9", -- Classic purple
+          cyan = "#8BE9FD",   -- Classic cyan
+          pink = "#FF79C6",   -- Classic pink
+
           -- Bright variants (slightly toned down)
           bright_red = "#FF6E6E",     -- Softer bright red
           bright_green = "#69FF94",   -- Balanced bright green
@@ -32,21 +29,20 @@ return {
           bright_magenta = "#FF92DF", -- Classic bright magenta
           bright_cyan = "#A4FFFF",    -- Classic bright cyan
           bright_white = "#FFFFFF",   -- Pure white
-          
+
           -- UI elements
-          menu = "#21222C",          -- Classic menu background
-          visual = "#3E4452",        -- Classic visual selection
-          gutter_fg = "#4B5263",     -- Classic gutter
-          nontext = "#3B4048",       -- Classic non-text
-          white = "#F8F8F2",         -- Slightly off-white
-          black = "#191A21",         -- Classic black
+          menu = "#0A0B14",      -- Classic menu background
+          visual = "#3E4452",    -- Classic visual selection
+          gutter_fg = "#4B5263", -- Classic gutter
+          nontext = "#3B4048",   -- Classic non-text
+          white = "#F8F8F2",     -- Slightly off-white
+          black = "#191A21",     -- Classic black
         },
         -- Show the '~' characters after the end of buffers
-        show_end_of_buffer = true,
+        show_end_of_buffer = false,
         -- Use transparent background
-        transparent_bg = true,
+        transparent_bg = false,
         -- Set custom lualine background color
-        lualine_bg_color = "#2D3143",
         -- Set italic comment
         italic_comment = true,
         -- Override specific highlights

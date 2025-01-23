@@ -1,6 +1,6 @@
 vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
 
-vim.keymap.set('n', '<leader>t', vim.cmd.Floaterminal )
+vim.keymap.set('n', '<leader>tt', vim.cmd.Floaterminal )
 
 
 local state = {
