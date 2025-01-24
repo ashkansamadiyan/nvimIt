@@ -26,6 +26,15 @@ return {
         'xml',
         'json'
       },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = '<C-s>',
+          node_incremental = '<C-s>',
+          scope_incremental = '<leader>st',
+          node_decremental = '<M-s>',
+        },
+      },
       auto_install = true,
       highlight = {
         enable = true,
@@ -40,11 +49,9 @@ return {
             -- Function textobjects
             ['af'] = '@function.outer',
             ['if'] = '@function.inner',
-            
             -- Parameter textobjects
             ['ap'] = '@parameter.outer',
             ['ip'] = '@parameter.inner',
-            
             -- JSX textobjects
             ['ax'] = '@jsx_element.outer',
             ['ix'] = '@jsx_element.inner',

@@ -17,30 +17,37 @@ return {
         selection = { preselect = true, auto_insert = false }, 
       },
       keyword = {
-        range = 'full', 
+        range = 'full',
       },
       menu = {
-        border = 'single',
-        min_width = 20,
+        border = 'solid',
+        min_width = 30,
         scrollbar = false,
         draw = {
           columns = {
             { "label", "label_description", gap = 1 },
-            { "kind_icon", "kind" }, -- ⚠️ Needs icon definitions
           },
         },
       },
       documentation = {
         auto_show = true,
-        auto_show_delay_ms = 50,
+        auto_show_delay_ms = 150,
         window = {
           min_width = 13,
-          border = 'single',
+          border = 'solid',
           scrollbar = false,
         },
       },
     },
-    signature = { enabled = true },
+    signature = { enabled = true,
+
+      window = {
+        border = 'padded',
+        min_width = 15,
+      },
+
+
+    },
   },
   opts_extend = { "sources.default" },
 }

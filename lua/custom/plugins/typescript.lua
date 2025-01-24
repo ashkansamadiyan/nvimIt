@@ -2,6 +2,8 @@ return {
   {
     "pmizio/typescript-tools.nvim",
     ft = { "typescript", "typescriptreact" },
+
+
     dependencies = {
       "nvim-lua/plenary.nvim",
       "neovim/nvim-lspconfig",
@@ -22,7 +24,6 @@ return {
 
       require("typescript-tools").setup({
         capabilities = capabilities,
-        
         on_attach = function(client, bufnr)
           -- Disable formatting in favor of null-ls
           client.server_capabilities.documentFormattingProvider = false
@@ -32,12 +33,10 @@ return {
           local map = function(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = 'TS: ' .. desc })
           end
-          
-          map('n', '<leader>to', '<cmd>TSToolsOrganizeImports<CR>', 'Organize Imports')
-          map('n', '<leader>tr', '<cmd>TSToolsRemoveUnused<CR>', 'Remove Unused')
-          map('n', '<leader>ti', '<cmd>TSToolsAddMissingImports<CR>', 'Add Missing Imports')
-          map('n', 'gD', '<cmd>TSToolsGoToSourceDefinition<CR>', 'Source Definition')
-          map('n', '<leader>tR', '<cmd>TSToolsRenameFile<CR>', 'Rename File')
+          map('n', '<leader>toi', '<cmd>TSToolsOrganizeImports<CR>', 'Organize Imports')
+          map('n', '<leader>tru', '<cmd>TSToolsRemoveUnused<CR>', 'Remove Unused')
+          map('n', '<leader>tai', '<cmd>TSToolsAddMissingImports<CR>', 'Add Missing Imports')
+          map('n', '<leader>trf', '<cmd>TSToolsRenameFile<CR>', 'Rename File')
           map('n', 'K', vim.lsp.buf.hover, 'Hover Documentation')
         end,
 

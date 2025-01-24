@@ -106,39 +106,9 @@ vim.keymap.set('i', '<M-k>', '<Up>', { noremap = true })
 vim.keymap.set('i', '<M-l>', '<Right>', { noremap = true })
 
 
-vim.keymap.set('i', '<M-CR>', '<CR><CR><CR><UP><UP>', { noremap = true, silent = true })
+vim.keymap.set('i', '<M-CR>', '<Esc>o<UP>', { noremap = true, silent = true })
 
-----
----
----
----
----
--- local function open_terminal_in_buffer_dir()
---   local current_buffer_dir = vim.fn.expand '%:p:h'
---   vim.cmd 'split'
---   vim.cmd 'resize 25'
---   vim.cmd('terminal cd "' .. current_buffer_dir .. '" && $SHELL')
---
---   -- Disable line numbers in terminal buffer
---   vim.cmd 'setlocal nonumber norelativenumber'
---
---   vim.cmd 'startinsert'
--- end
---
--- vim.keymap.set('n', '<leader>t', open_terminal_in_buffer_dir, {
---   noremap = true,
---   silent = true,
---   desc = 'Open terminal in current buffer directory',
--- })
-
---
 -- Diagnostic keymaps
---
---
---
---
---
---
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -149,10 +119,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -164,14 +134,12 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 --replace them ffs that messes up the damn pp in v mode!
-vim.keymap.set('i', '<C-c>', '<C-[>', { noremap = true })
+vim.keymap.set('i', '<C-c>', '<C-[><Esc>', { noremap = true })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.highlight.on_yank()`
+-- Highlight when yanking 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
@@ -192,16 +160,6 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- [[ Configure and install plugins ]]
---
---  To check the current status of your plugins, run
---    :Lazy
---
---  You can press `?` in this menu for help. Use `:q` to close the window
---
---  To update plugins you can run
---    :Lazy update
---
 require('lazy').setup({
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -344,9 +302,6 @@ require('lazy').setup({
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
-        -- You can put your default mappings / updates / etc. in here
-        --  All the info you're looking for is in `:help telescope.setup()`
-        --
         defaults = {
           --   mappings = {
           --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
@@ -382,7 +337,7 @@ require('lazy').setup({
 
 
 
-
+      --buffer swaps
       vim.keymap.set('n', '<leader><leader>', function()
         builtin.buffers(require('telescope.themes').get_dropdown {
           sort_mru = true,
@@ -392,36 +347,19 @@ require('lazy').setup({
           attach_mappings = function(prompt_bufnr, map)
             map('i', '<Tab>', 'move_selection_next')
             map('i', '<S-Tab>', 'move_selection_previous')
-
-            -- Keep default behavior for other keys
             return true
           end
         })
       end, { desc = '[ ] Find existing buffers' })
 
-
-
-
-
-
-      --
-      --
-      --
-      --
-      --
-      --
-
-
       local function get_sorted_buffers()
         local buffers = {}
         local current = vim.fn.bufnr()
-
         for _, bufnr in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
           if bufnr.bufnr ~= current then
             table.insert(buffers, bufnr.bufnr)
           end
         end
-
         -- Sort by most recently used
         table.sort(buffers, function(a, b)
           return vim.fn.getbufinfo(a)[1].lastused > vim.fn.getbufinfo(b)[1].lastused
@@ -440,15 +378,6 @@ require('lazy').setup({
 
       vim.keymap.set('n', '<leader>1', function() jump_to_buffer(1) end, { desc = 'Jump to previous buffer' })
       vim.keymap.set('n', '<leader>2', function() jump_to_buffer(2) end, { desc = 'Jump to second most recent buffer' })
-
-
-      ---
-      ---
-      ---
-      ---
-      ---
-      ---
-      ---
       ---
 
 
@@ -459,18 +388,6 @@ require('lazy').setup({
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -489,37 +406,7 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
-
-  {
-    'ThePrimeagen/harpoon',
-    branch = 'harpoon2', -- Since you're using the new Harpoon 2 syntax
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      local harpoon = require 'harpoon'
-
-      -- Setup harpoon
-      harpoon:setup()
-
-      -- Configure keymaps
-      vim.keymap.set('n', '<leader>a', function()
-        harpoon:list():add()
-      end)
-      vim.keymap.set('n', '<leader>rh', function()
-        harpoon:list():remove()
-      end)
-
-      vim.keymap.set('n', '<leader>fh', function()
-        harpoon:list():clear()
-      end)
-
-      vim.keymap.set('n', '<C-e>', function()
-        harpoon.ui:toggle_quick_menu(harpoon:list())
-      end)
-
-    end,
-  },
   -- LSP Plugins
-  --
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
     -- used for completion, annotations and signatures of Neovim apis
@@ -539,14 +426,12 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
       { 'williamboman/mason.nvim', opts = {} },
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-      
-
       -- Useful status updates for LSP.
+      --
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim',       opts = {} },
 
@@ -557,7 +442,6 @@ require('lazy').setup({
     config = function()
       -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
       -- and elegantly composed help section, `:help lsp-vs-treesitter`
-
       --  This function gets run when an LSP attaches to a particular buffer.
       --    That is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
@@ -792,7 +676,7 @@ require('lazy').setup({
   --   cmd = { 'ConformInfo' },
   --   keys = {
   --     {
-  --       '<leader>f',
+  --       '<leader>ff',
   --       function()
   --         require('conform').format { async = true, lsp_format = 'fallback' }
   --       end,
@@ -822,34 +706,12 @@ require('lazy').setup({
   --       lua = { 'stylua' },
   --       -- Conform can also run multiple formatters sequentially
   --       -- python = { "isort", "black" },
-  --       --
   --       -- You can use 'stop_after_first' to run the first available formatter from the list
   --       -- javascript = { "prettierd", "prettier", stop_after_first = true },
   --     },
   --   },
   -- },
 
- 
-
-
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-
-    end,
-  },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
@@ -881,7 +743,6 @@ require('lazy').setup({
     ['"'] = { output = { left = '"', right = '"' } },
     ['`'] = { output = { left = '`', right = '`' } },
   },
-  
   -- Visual mode mappings
   mappings = {
     add = 'sa', -- Visual mode: sa + surrounding_char
@@ -891,17 +752,17 @@ require('lazy').setup({
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
+      -- local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- ---@diagnostic disable-next-line: duplicate-set-field
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
@@ -914,22 +775,15 @@ require('lazy').setup({
 
   -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
   --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
   require 'kickstart.plugins.debug',
-  --           require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  --require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
-  --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
